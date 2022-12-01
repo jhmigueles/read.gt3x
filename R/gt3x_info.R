@@ -114,7 +114,7 @@ old_version <- function(info) {
   firmware_version <- package_version(firmware_version)
   hdr <- info$`Serial Prefix`
   ret <- hdr %in% c("MRA", "NEO") &
-    firmware_version <= package_version("2.5.0")
+    firmware_version < package_version("2.5.0")
   return(ret)
 }
 
