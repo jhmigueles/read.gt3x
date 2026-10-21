@@ -5,11 +5,13 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/THLfi/read.gt3x/workflows/R-CMD-check/badge.svg)](https://github.com/THLfi/read.gt3x/actions)
+[![R-CMD-check](https://github.com/THLfi/read.gt3x/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/THLfi/read.gt3x/actions/workflows/R-CMD-check.yaml)
 [![CRAN
 status](https://www.r-pkg.org/badges/version/read.gt3x)](https://CRAN.R-project.org/package=read.gt3x)
 [![CRAN RStudio mirror
 downloads](https://cranlogs.r-pkg.org/badges/last-month/read.gt3x?color=blue)](https://r-pkg.org/pkg/read.gt3x)
+[![Codecov test
+coverage](https://codecov.io/gh/THLfi/read.gt3x/graph/badge.svg)](https://app.codecov.io/gh/THLfi/read.gt3x)
 <!-- badges: end -->
 
 The `read.gt3x` R package implements a high performance C++ parser for
@@ -24,8 +26,7 @@ are used by both individuals and researchers to track movement. The
 devices measures [proper
 acceleration](https://en.wikipedia.org/wiki/Proper_acceleration) in
 three directions: X (right-left), Y (forward-backward), Z (up-down). The
-measurement unit is the gravitational unit,
-*g* = 9.81*m*/*s*<sup>2</sup>
+measurement unit is the gravitational unit, $g = 9.81 m / s^2$
 
 Data from the wearable ActiGraph devices is usually extracted and
 analyzed via a software called *ActiLife*. When data is extracted from
@@ -55,9 +56,9 @@ modification is done to the raw data. The package implements an
 efficient C++ parser which reads activity samples directly from the
 binary log.bin file inside the .gt3x archive. This allows for
 
--   Storing of the data in original binary format to reserve space  
--   Fast access to the accelerometer’s measurements  
--   Circumvent ActiLife’s filtering algorithms
+- Storing of the data in original binary format to reserve space  
+- Fast access to the accelerometer’s measurements  
+- Circumvent ActiLife’s filtering algorithms
 
 ## Installation
 
@@ -75,6 +76,7 @@ to demonstrate reading the data.
 
 ``` r
 library(read.gt3x)
+options(digit.secs = 3L)
 ```
 
 First we need the path to a single gt3x file. We have one file included
@@ -213,13 +215,13 @@ head(df)
 #> Sampling Rate: 100Hz
 #> Firmware Version: 1.7.2
 #> Serial Number Prefix: TAS
-#>                     time     X      Y     Z
-#> 1 2019-09-17 18:40:00.00 0.000  0.008 0.996
-#> 2 2019-09-17 18:40:00.00 0.016  0.000 1.008
-#> 3 2019-09-17 18:40:00.01 0.020 -0.008 1.004
-#> 4 2019-09-17 18:40:00.02 0.016 -0.012 1.012
-#> 5 2019-09-17 18:40:00.03 0.016 -0.008 1.008
-#> 6 2019-09-17 18:40:00.04 0.008 -0.008 1.008
+#>                  time     X      Y     Z
+#> 1 2019-09-17 18:40:00 0.000  0.008 0.996
+#> 2 2019-09-17 18:40:00 0.016  0.000 1.008
+#> 3 2019-09-17 18:40:00 0.020 -0.008 1.004
+#> 4 2019-09-17 18:40:00 0.016 -0.012 1.012
+#> 5 2019-09-17 18:40:00 0.016 -0.008 1.008
+#> 6 2019-09-17 18:40:00 0.008 -0.008 1.008
 attributes(df)[setdiff(names(attributes(df)), c("names", "row.names"))]
 #> $class
 #> [1] "activity_df" "data.frame" 
@@ -299,6 +301,50 @@ attributes(df)[setdiff(names(attributes(df)), c("names", "row.names"))]
 #> $features
 #> [1] "sleep mode"
 ```
+
+Alternatively, you can have it return a data.frame directly:
+
+``` r
+X <- read.gt3x(gt3xfile, asDataFrame = TRUE)
+head(X)
+#> Sampling Rate: 100Hz
+#> Firmware Version: 1.7.2
+#> Serial Number Prefix: TAS
+#>                  time     X      Y     Z
+#> 1 2019-09-17 18:40:00 0.000  0.008 0.996
+#> 2 2019-09-17 18:40:00 0.016  0.000 1.008
+#> 3 2019-09-17 18:40:00 0.020 -0.008 1.004
+#> 4 2019-09-17 18:40:00 0.016 -0.012 1.012
+#> 5 2019-09-17 18:40:00 0.016 -0.008 1.008
+#> 6 2019-09-17 18:40:00 0.008 -0.008 1.008
+```
+
+## FAQ
+
+**Why are timestamps shown in GMT when the data were collected
+locally?**
+
+The `.gt3x` format stores timestamps in local device time, but the
+package represents them as `POSIXct` with a GMT timezone attribute to
+keep parsing consistent. The clock time is still the local device time.
+
+**Why do I sometimes see zeroes in the data?**
+
+Some files have missing samples that are imputed as zeroes when
+`imputeZeroes = TRUE`. If you want the raw incomplete series instead,
+leave `imputeZeroes = FALSE`.
+
+**Why does a file fail to read or unzip?**
+
+The file may be incomplete, malformed, or not actually a `.gt3x`
+archive. Check that `is_gt3x()` returns `TRUE` and that the archive
+contains both `info.txt` and `log.bin`.
+
+**Which output should I use, matrix or data frame?**
+
+Use the matrix if you want the fastest path for numeric analysis. Use
+`asDataFrame = TRUE` when you want timestamps attached directly to the
+result.
 
 ## Documentation
 

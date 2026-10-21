@@ -1,20 +1,13 @@
-* Resubmission, fixed vignette URLs
-
-## Test environments
-
-* ubuntu 16.4 local R installation, R 4.0.3
-* macOS latest (release)
-* windows-latest (release)
-* windows-latest (3.6)
-
 ## R CMD check results
 
-windows and mac
-0 errors | 0 warnings | 0 note
+0 errors | 0 warnings | 1 note
 
-On local ubuntu installation, 0 errors, 0 notes, 1 warning:
+* This is a new release.
+---
+Maintainer email change:
 
-> checking top-level files ... WARNING
-  A complete check needs the 'checkbashisms' script.
-  See section ‘Configure and cleanup’ in the ‘Writing R Extensions’
-  manual.
+old: tuomo.a.nieminen@gmail.com
+new: tuomo.a.susi@gmail.com
+
+The reason for the change is that my last name has changed from Nieminen to Susi and my primary email has changed accordingly.
+
